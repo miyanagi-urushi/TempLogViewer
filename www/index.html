@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+  <script src="components/loader.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+
+  <link rel="stylesheet" href="components/loader.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script>
+    const ncmb = new NCMB("c699df9a9babdf36f9361e924f615e81488ebf34d1d6692e49315d0fcb408497","0f1e610f2c5651cadbb4cd37b03be1ec101de535b4302ed86e84f6ee302451c4");
+    const HOSTS = ["rasp2","rasp1"];
+    
+    var pres1 = [];
+    var temp1 = [];
+    var humi1 = [];
+    var createDate1 = [];
+    
+    var pres2 = [];
+    var temp2 = [];
+    var humi2 = [];
+    var createDate2 = [];
+    
+    ons.ready(function() {
+        var pi2 = ncmb.DataStore("Pi2NCMB");
+        pi2
+         .equalTo("host", "rasp2")
+         .order("createDate", true)
+         //.limit(limit)        
+         .fetchAll()
+         .then(function(results){
+             temp1 = [];
+              humi1 = [];
+              pres1 = [];
+              createDate1 = [];
+              
+            for (var i = 0; i < results.length; i++) {
+              var object = results[i];
+              console.log(object.host + ":" + object.temp + ":" + object.pres + ":" + object.humi + ":" + object.createDate);
+              temp1.push(object.temp);
+              humi1.push(object.humi);
+              pres1.push(object.pres);
+              
+              createDate1.push(new Date(object.createDate).getHours() + ":" + new Date(object.createDate).getMinutes());
+              
+            }
+          })
+         .catch(function(err){
+            console.log(err);
+        });
+
+        
+//        pi2
+//         .equalTo("host", HOSTS[1])
+//         .order("createDate", true)
+//         .limit(5)        
+//         .fetchAll()
+//         .then(function(results){
+//            for (var i = 0; i < results.length; i++) {
+//              var object = results[i];
+//              //console.log(object.host + ":" + object.temp + ":" + object.pres + ":" + object.humi + ":" + object.createDate);
+//              temp2.push(object.temp);
+//              humi2.push(object.humi);
+//              pres2.push(object.pres);
+//              
+//              createDate2.push(new Date(object.createDate).getHours() + ":" + new Date(object.createDate).getMinutes());              
+//            }
+//          })
+//         .catch(function(err){
+//            console.log(err);
+//        });
+    });
+    
+//    function getNcmbData(limit,host){
+//        var pi2 = ncmb.DataStore("Pi2NCMB");
+//        pi2
+//         .equalTo("host", host)
+//         .order("createDate", true)
+//         .limit(limit)        
+//         .fetchAll()
+//         .then(function(results){
+//             temp1 = [];
+//              humi1 = [];
+//              pres1 = [];
+//              createDate1 = [];
+//              
+//            for (var i = 0; i < results.length; i++) {
+//              var object = results[i];
+//              console.log(object.host + ":" + object.temp + ":" + object.pres + ":" + object.humi + ":" + object.createDate);
+//              temp1.push(object.temp);
+//              humi1.push(object.humi);
+//              pres1.push(object.pres);
+//              
+//              createDate1.push(new Date(object.createDate).getHours() + ":" + new Date(object.createDate).getMinutes());
+//              
+//            }
+//          })
+//         .catch(function(err){
+//            console.log(err);
+//        });
+//    }
+    
+
+    document.addEventListener('show', function(event) {
+        
+      var page = event.target;
+      var titleElement = document.querySelector('#toolbar-title');
+
+      if (page.matches('#first-page')) {
+          
+
+          
+          
+        //titleElement.innerHTML = '1';
+
+        
+      } else if (page.matches('#second-page')) {
+        //titleElement.innerHTML = '2';
+         //----------------------------------------------------
+         
+        var data1 = {
+                labels: createDate1,
+                datasets: [{
+                    label: "温度",
+                    fill: false,
+                    data: temp1,
+                    yAxisID: "y-axis-1",
+                    borderColor    : 'rgba(255, 0, 0, 0.5)',
+                    backgroundColor: 'rgba(255, 0, 0, 0.5)'
+                }, {
+                    label: "湿度",
+                    fill: false,
+                    data: humi1,
+                    yAxisID: "y-axis-2",
+                    borderColor    : 'rgba(0, 255, 0, 0.5)',
+                    backgroundColor: 'rgba(0, 255, 0, 0.5)'
+                }, {
+                    label: "気圧",
+                    fill: false,
+                    data: pres1,
+                    yAxisID: "y-axis-3",
+                    borderColor    : 'rgba(0, 0, 255, 0.5)',
+                    backgroundColor: 'rgba(0, 0, 255, 0.5)'
+                }]
+        };        
+    
+        var ctx1 = document.getElementById("chart-canvas2");
+        
+        var chart1 = new Chart(ctx1, {
+            type: 'line',
+            data: data1,
+            options: {
+                responsive: true,
+                hoverMode: 'index',
+                stacked: false,
+                title:{
+                    display: false,
+                },
+                scales: {
+                    yAxes: [{
+                        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: "left",
+                        id: "y-axis-1",
+                    }, {
+                        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: "right",
+                        id: "y-axis-2",
+
+                        // grid line settings
+                        gridLines: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        },
+                    },{
+                        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: "right",
+                        id: "y-axis-3",
+
+                        // grid line settings
+                        gridLines: {
+                            drawOnChartArea: false, // only want the grid lines for one axis to show up
+                        },
+                    },
+                    ],
+                }
+            }
+        });
+        
+        //-----------------------------------------------------
+      }
+    });
+    
+        
+
+  </script>
+</head>
+<body>
+  <ons-page>
+    <!--<ons-toolbar>
+      <div class="center" id="toolbar-title"></div>
+    </ons-toolbar>-->
+    <ons-tabbar position="auto">
+      <ons-tab id="tab1" label="室内" page="tab1.html" active>
+      </ons-tab>
+      <ons-tab id="tab2" label="室外" page="tab2.html">
+      </ons-tab>
+    </ons-tabbar>
+  </ons-page>
+
+  <ons-template id="tab1.html">
+    <ons-page id="first-page" onLoad="chart1.update()">
+      <p style="text-align: center;">
+        <canvas id="chart-canvas1"></canvas>
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="tab2.html">
+    <ons-page id="second-page">
+      <p style="text-align: center;">
+        <canvas id="chart-canvas2"></canvas>
+      </p>
+    </ons-page>
+  </ons-template>
+</body>
+</html>
